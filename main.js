@@ -41,7 +41,7 @@ function manageRequest(request, socket) {
             "",
             fileContent
           ]
-          socket.write(returnValue.join('\n'))
+          socket.write(returnValue.join('\r\n'))
         } else {
           console.log('File not found:', file)
           sendError(socket, 404, 'Not Found')
@@ -64,7 +64,7 @@ function sendError(socket, code, message) {
     "",
     `<h1>${code} - ${message}</h1>`
   ]
-  socket.write(returnValue.join('\n'))
+  socket.write(returnValue.join('\r\n'))
 }
 
 listen(3000)
