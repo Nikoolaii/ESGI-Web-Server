@@ -67,4 +67,4 @@ function sendError(socket, code, message) {
   socket.write(returnValue.join('\r\n'))
 }
 
-listen(3000)
+listen(80)
