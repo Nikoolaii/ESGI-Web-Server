@@ -1,20 +1,18 @@
 const folder = "./www";
 
 function listen(port) {
-  while (true) {
-    const net = require('net');
-    const server = net.createServer((socket) => {
-      console.log("New connection " + socket.remoteAddress + ":" + socket.remotePort);
-      socket.on('data', (data) => {
-        manageRequest(data.toString(), socket);
-      });
-    })
-  }
-}
+  const net = require('net');
+  const server = net.createServer((socket) => {
+    console.log("New connection " + socket.remoteAddress + ":" + socket.remotePort);
+    socket.on('data', (data) => {
+      manageRequest(data.toString(), socket);
+    });
+  });
 
-server.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+  server.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+  });
+}
 
 
 function manageRequest(request, socket) {
